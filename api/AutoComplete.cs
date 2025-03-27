@@ -9,61 +9,60 @@ using System.Net;
 using System.Text.Json;
 using WebSearch.Models;
 
-namespace WebSearch.Function
+namespace WebSearch.Function;
+
+public class AutoComplete
 {
-    public class AutoComplete
+    private static readonly string searchApiKey = Environment.GetEnvironmentVariable("SearchApiKey", EnvironmentVariableTarget.Process);
+    private static readonly string searchServiceName = Environment.GetEnvironmentVariable("SearchServiceName", EnvironmentVariableTarget.Process);
+    private static readonly string searchIndexName = Environment.GetEnvironmentVariable("SearchIndexName", EnvironmentVariableTarget.Process) ?? "good-books";
+
+    private readonly ILogger<Lookup> _logger;
+
+    public AutoComplete(ILogger<Lookup> logger)
     {
-        private static string searchApiKey = Environment.GetEnvironmentVariable("SearchApiKey", EnvironmentVariableTarget.Process);
-        private static string searchServiceName = Environment.GetEnvironmentVariable("SearchServiceName", EnvironmentVariableTarget.Process);
-        private static string searchIndexName = Environment.GetEnvironmentVariable("SearchIndexName", EnvironmentVariableTarget.Process) ?? "good-books";
+        this._logger = logger;
+    }
 
-        private readonly ILogger<Lookup> _logger;
+    [Function("autocomplete")]
+    public async Task<HttpResponseData> RunAsync(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
+        FunctionContext executionContext)
+    {
+        // Get Document Id
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        var data = JsonSerializer.Deserialize<RequestBodySuggest>(requestBody);
 
-        public AutoComplete(ILogger<Lookup> logger)
+        // Azure AI Search 
+        Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
+
+        SearchClient searchClient = new(
+
+            serviceEndpoint,
+            searchIndexName,
+            new AzureKeyCredential(searchApiKey)
+        );
+
+        AutocompleteOptions options = new()
         {
-            _logger = logger;
-        }
+            Size = data.Size
+        };
 
-        [Function("autocomplete")]
-        public async Task<HttpResponseData> RunAsync(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req, 
-            FunctionContext executionContext)
+        var autoCompleteResponse = await searchClient.AutocompleteAsync(data.SearchText, data.SuggesterName, options);
+
+        // Data to return
+        var searchSuggestions = new Dictionary<string, List<AutocompleteItem>>
         {
-            // Get Document Id
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var data = JsonSerializer.Deserialize<RequestBodySuggest>(requestBody);
+            ["suggestions"] = [.. autoCompleteResponse.Value.Results]
+        };
 
-            // Azure AI Search 
-            Uri serviceEndpoint = new($"https://{searchServiceName}.search.windows.net/");
+        var response = req.CreateResponse(HttpStatusCode.Found);
 
-            SearchClient searchClient = new(
+        // Serialize data
+        var serializer = new JsonObjectSerializer(
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        await response.WriteAsJsonAsync(searchSuggestions, serializer);
 
-                serviceEndpoint,
-                searchIndexName,
-                new AzureKeyCredential(searchApiKey)
-            );
-
-            AutoCompleteOptions options = new()
-            {
-                Size = data.Size
-            };
-
-            var autoCompleteResponse = await searchClient.AutoCompleteAsync<BookModel>(data.SearchText, data.SuggesterName, options);
-            
-            // Data to return
-            var searchSuggestions = new Dictionary<string, List<SearchSuggestion<BookModel>>>
-            {
-                ["suggestions"] = autoCompleteResponse.Value.Results.ToList()
-            };
-
-            var response = req.CreateResponse(HttpStatusCode.Found);
-
-            // Serialize data
-            var serializer = new JsonObjectSerializer(
-                new JsonSerializerOptions(JsonSerializerDefaults.Web));
-            await response.WriteAsJsonAsync(searchSuggestions, serializer);
-            
-            return response;
-        }
+        return response;
     }
 }
