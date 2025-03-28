@@ -6,15 +6,12 @@ import "./Results.css";
 export default function Results(props) {
   const navigate = useNavigate();
 
-  let results = props.documents.map((result, index) => {
+  let results = props.documents.map(({ document }, index) => {
     return (
       <ResultsPage
         key={index}
-        document={result}
-        handleBookClick={(bookId) =>
-          navigate(` /details/${props.document.id}
-`)
-        }
+        document={document}
+        handleBookClick={(bookId) => navigate(` /details/${bookId}`)}
       />
     );
   });
