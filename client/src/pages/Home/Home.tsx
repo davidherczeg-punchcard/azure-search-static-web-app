@@ -106,9 +106,7 @@ export default function Home() {
     try {
       axios
         .post("/api/chat", {
-          messages: [...messages, userMessage].map(({ content }) => ({
-            content,
-          })),
+          content: input.trim(),
         })
         .then((response) => {
           setMessages((prev) => [
