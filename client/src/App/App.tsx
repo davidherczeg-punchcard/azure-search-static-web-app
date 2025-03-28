@@ -46,7 +46,7 @@ export default function App() {
   return (
     <AuthContext.Provider value={user}>
       <div className="container-fluid app">
-        <AppHeader />
+        {/* <AppHeader /> */}
         <BrowserRouter>
           <Routes>
             <Route path={`/`} element={<Home />} />

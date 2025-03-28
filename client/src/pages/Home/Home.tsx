@@ -131,7 +131,7 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ height: "100vh", py: 4 }}>
+      <Container maxWidth="md" sx={{ height: "89vh", py: 4 }}>
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <Typography variant="h4" component="h1" gutterBottom>
             Chat Interface

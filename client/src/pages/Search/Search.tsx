@@ -7,6 +7,7 @@ import Results from "../../components/Results/Results.tsx";
 import Pager from "../../components/Pager/Pager.js";
 import Facets from "../../components/Facets/Facets.js";
 import SearchBar from "../../components/SearchBar/SearchBar.js";
+import { Container } from "@mui/material";
 
 import "./Search.css";
 
@@ -80,7 +81,7 @@ export default function Search() {
     );
   } else {
     body = (
-      <div className="col-md-9">
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Results
           documents={results}
           top={top}
@@ -95,7 +96,7 @@ export default function Search() {
           resultsPerPage={resultsPerPage}
           setCurrentPage={setCurrentPage}
         ></Pager>
-      </div>
+      </Container>
     );
   }
 

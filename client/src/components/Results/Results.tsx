@@ -11,7 +11,7 @@ export default function Results(props) {
       <ResultsPage
         key={index}
         document={document}
-        handleBookClick={(bookId) => navigate(` /details/${bookId}`)}
+        handleBookClick={(bookId) => navigate(`/details/${bookId}`)}
       />
     );
   });
