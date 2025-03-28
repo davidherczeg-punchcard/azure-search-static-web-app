@@ -22,7 +22,7 @@ export default function Search() {
     new URLSearchParams(location.search).get("q") ?? "*"
   );
   const [top] = useState<any>(
-    new URLSearchParams(location.search).get("top") ?? 8
+    new URLSearchParams(location.search).get("top") ?? 6
   );
   const [skip, setSkip] = useState(
     new URLSearchParams(location.search).get("skip") ?? 0

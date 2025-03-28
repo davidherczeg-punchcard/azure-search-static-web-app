@@ -1,6 +1,7 @@
 import React from "react";
 import ResultsPage from "./ResultsPage.tsx";
 import { useNavigate } from "react-router-dom";
+import { Grid } from "@mui/material";
 import "./Results.css";
 
 export default function Results(props) {
@@ -25,7 +26,9 @@ export default function Results(props) {
         Showing {beginDocNumber}-{endDocNumber} of{" "}
         {props.count.toLocaleString()} results for <b>{props.query}</b>
       </p>
-      <div className="row row-cols-md-5 results">{results}</div>
+      <Grid container spacing={4}>
+        {results}
+      </Grid>
     </div>
   );
 }
