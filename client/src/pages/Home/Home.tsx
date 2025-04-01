@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import axios from "../../axios.js";
 
 import {
@@ -114,12 +116,20 @@ export default function Home() {
             {
               id: (Date.now() + 1).toString(),
               role: "assistant",
-              content: response.data,
+              content: response.data[0].text,
             },
           ]);
         })
         .catch((error) => {
           console.log(error);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: (Date.now() + 1).toString(),
+              role: "assistant",
+              content: "Something went wrong ! Please try again.",
+            },
+          ]);
           // throw new Error(`HTTP error! status: ${error.status}`);
         });
     } finally {
@@ -195,7 +205,11 @@ export default function Home() {
                         borderRadius: 2,
                       }}
                     >
-                      <Typography variant="body1">{message.content}</Typography>
+                      {/* <Typography variant="body1">{message.content}</Typography> */}
+                      <ReactMarkdown
+                        children={message.content}
+                        remarkPlugins={[remarkGfm]} // Enable GitHub flavored markdown
+                      />
                     </Box>
                   </Box>
                 ))
