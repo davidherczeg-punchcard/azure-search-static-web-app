@@ -14,7 +14,7 @@ export default function SearchBar2({ postSearchHandler, query }) {
   useEffect(() => {
     console.log(`useEffect getSuggestions: ${q}`);
     if (q) {
-      axios.post('/api/autocomplete', { q, top: 5, suggester: 'sg' })
+      axios.post('/api/suggest', { q, top: 5, suggester: 'sg' })
       .then(response => {
           setSuggestions(response.data.suggestions.map(s => s.text));
       }).catch (error =>{
