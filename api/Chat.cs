@@ -59,6 +59,7 @@ public class Chat
 
         ChatCompletion completion = chatClient.CompleteChat(
             [
+                new SystemChatMessage("You are an AI assistant that helps people find information. If the requester asks about an author, check through the collection of authors and find a matching author."),
                 new UserChatMessage(content.Content),
             ],
             options);
